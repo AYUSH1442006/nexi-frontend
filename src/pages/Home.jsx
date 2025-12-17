@@ -59,7 +59,7 @@ export default function Home() {
       <section
         className="relative text-white overflow-hidden bg-cover bg-center min-h-screen flex items-center"
         style={{
-          backgroundImage: `linear-gradient(rgba(10,15,50,0.05), rgba(15,20,60,0.10)), url(${heroPoster})`
+          backgroundImage: `linear-gradient(rgba(10,15,50,0.05), rgba(15,20,60,0.10)), url(${heroPoster})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
