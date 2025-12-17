@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { authAPI } from "../services/api";
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -11,7 +9,6 @@ export default function Register() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
-  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -23,50 +20,86 @@ export default function Register() {
     setLoading(true);
 
     try {
-      const response = await authAPI.register(form);
-      
-      localStorage.setItem("token", response.token);
-      localStorage.setItem("userEmail", response.user.email);
-
-      console.log("Registration successful!", response);
-      
-      navigate("/select-role", { 
-        state: { userData: response.user } 
-      });
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      console.log("Registration successful!", form);
+      alert("Account created! (Connect your authAPI.register)");
     } catch (err) {
       setError(err.message || "Registration failed. Please try again.");
-      console.error("Register error:", err);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center p-4">
-      {/* Background blur effect */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-700"></div>
-      </div>
+    <div className="flex min-h-screen">
+      {/* Left Side - Logo & Branding */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#01275a] via-[#023e8a] to-[#0466c8] relative overflow-hidden">
+        {/* Animated background elements */}
+        <div className="absolute inset-0">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-400 rounded-full mix-blend-overlay filter blur-3xl opacity-20 animate-pulse"></div>
+          <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-cyan-400 rounded-full mix-blend-overlay filter blur-3xl opacity-20 animate-pulse delay-1000"></div>
+        </div>
 
-      <div className="relative w-full max-w-md">
-        {/* Glass card */}
-        <div className="bg-white/80 backdrop-blur-2xl rounded-3xl shadow-2xl border border-gray-200/50 overflow-hidden">
-          {/* Header */}
-          <div className="px-8 pt-12 pb-8 text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-            </div>
-            <h1 className="text-3xl font-semibold text-gray-900 mb-2">Create Account</h1>
-            <p className="text-gray-500 text-sm">Join NextTaskers today</p>
+        {/* Content */}
+        <div className="relative z-10 flex flex-col items-center justify-center w-full p-12 text-white">
+          {/* Logo */}
+          <div className="mb-12">
+            <img 
+              src="/logo.png" 
+              alt="NextTaskers Logo" 
+              className="w-48 h-48 drop-shadow-2xl"
+            />
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="px-8 pb-8">
+          {/* Tagline */}
+          <h1 className="text-6xl font-bold text-center mb-6 leading-tight">
+            <span className="bg-gradient-to-r from-yellow-300 via-orange-400 to-pink-400 bg-clip-text text-transparent animate-gradient">
+              Get Anything
+            </span>
+            <br />
+            <span className="bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-400 bg-clip-text text-transparent animate-gradient-slow">
+              Done
+            </span>
+          </h1>
+
+          <p className="text-xl text-blue-100 text-center max-w-md leading-relaxed">
+            Connect with skilled freelancers and turn your ideas into reality
+          </p>
+
+          {/* Decorative dots */}
+          <div className="flex gap-2 mt-12">
+            <div className="w-2 h-2 rounded-full bg-white/30"></div>
+            <div className="w-2 h-2 rounded-full bg-white/50"></div>
+            <div className="w-2 h-2 rounded-full bg-white/70"></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Side - Register Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50">
+        <div className="w-full max-w-md">
+          {/* Mobile Logo */}
+          <div className="lg:hidden text-center mb-8">
+            <img 
+              src="/logo.png" 
+              alt="NextTaskers" 
+              className="w-20 h-20 mx-auto mb-4"
+            />
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-[#01275a] to-[#0466c8] bg-clip-text text-transparent">
+              NextTaskers
+            </h2>
+          </div>
+
+          {/* Form Card */}
+          <div className="bg-white rounded-3xl shadow-xl border border-gray-200 p-8">
+            <div className="mb-8">
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h2>
+              <p className="text-gray-600">Join our community today</p>
+            </div>
+
             {error && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl">
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl">
                 <div className="flex items-start">
                   <svg className="w-5 h-5 text-red-500 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
@@ -76,16 +109,16 @@ export default function Register() {
               </div>
             )}
 
-            <div className="space-y-4">
+            <div className="space-y-5">
               {/* Name Input */}
-              <div className="relative">
-                <label className="block text-xs font-medium text-gray-700 mb-2 ml-1">Full Name</label>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
                 <input
                   name="name"
                   type="text"
                   placeholder="John Doe"
-                  className={`w-full px-4 py-4 bg-gray-50 border-2 rounded-2xl transition-all duration-200 outline-none text-gray-900 placeholder-gray-400
-                    ${focusedField === 'name' ? 'border-blue-500 bg-white shadow-lg shadow-blue-100' : 'border-transparent hover:bg-gray-100'}`}
+                  className={`w-full px-4 py-3.5 bg-gray-50 border-2 rounded-xl transition-all duration-200 outline-none text-gray-900 placeholder-gray-400
+                    ${focusedField === 'name' ? 'border-[#01275a] bg-white shadow-lg' : 'border-transparent hover:bg-gray-100'}`}
                   value={form.name}
                   onChange={handleChange}
                   onFocus={() => setFocusedField('name')}
@@ -95,14 +128,14 @@ export default function Register() {
               </div>
 
               {/* Email Input */}
-              <div className="relative">
-                <label className="block text-xs font-medium text-gray-700 mb-2 ml-1">Email</label>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                 <input
                   name="email"
                   type="email"
                   placeholder="john@example.com"
-                  className={`w-full px-4 py-4 bg-gray-50 border-2 rounded-2xl transition-all duration-200 outline-none text-gray-900 placeholder-gray-400
-                    ${focusedField === 'email' ? 'border-blue-500 bg-white shadow-lg shadow-blue-100' : 'border-transparent hover:bg-gray-100'}`}
+                  className={`w-full px-4 py-3.5 bg-gray-50 border-2 rounded-xl transition-all duration-200 outline-none text-gray-900 placeholder-gray-400
+                    ${focusedField === 'email' ? 'border-[#01275a] bg-white shadow-lg' : 'border-transparent hover:bg-gray-100'}`}
                   value={form.email}
                   onChange={handleChange}
                   onFocus={() => setFocusedField('email')}
@@ -112,14 +145,14 @@ export default function Register() {
               </div>
 
               {/* Password Input */}
-              <div className="relative">
-                <label className="block text-xs font-medium text-gray-700 mb-2 ml-1">Password</label>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
                 <input
                   name="password"
                   type="password"
                   placeholder="••••••••"
-                  className={`w-full px-4 py-4 bg-gray-50 border-2 rounded-2xl transition-all duration-200 outline-none text-gray-900 placeholder-gray-400
-                    ${focusedField === 'password' ? 'border-blue-500 bg-white shadow-lg shadow-blue-100' : 'border-transparent hover:bg-gray-100'}`}
+                  className={`w-full px-4 py-3.5 bg-gray-50 border-2 rounded-xl transition-all duration-200 outline-none text-gray-900 placeholder-gray-400
+                    ${focusedField === 'password' ? 'border-[#01275a] bg-white shadow-lg' : 'border-transparent hover:bg-gray-100'}`}
                   value={form.password}
                   onChange={handleChange}
                   onFocus={() => setFocusedField('password')}
@@ -127,17 +160,18 @@ export default function Register() {
                   required
                   minLength="6"
                 />
-                <p className="text-xs text-gray-500 mt-2 ml-1">Minimum 6 characters</p>
+                <p className="text-xs text-gray-500 mt-2">Minimum 6 characters</p>
               </div>
             </div>
 
             {/* Submit Button */}
             <button
-              type="submit"
+              type="button"
+              onClick={handleSubmit}
               disabled={loading}
-              className="w-full mt-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-2xl 
-                hover:from-blue-700 hover:to-blue-800 active:scale-[0.98] transition-all duration-200
-                disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 shadow-lg shadow-blue-500/30"
+              className="w-full mt-8 py-4 bg-gradient-to-r from-[#01275a] via-[#023e8a] to-[#0466c8] text-white font-semibold rounded-xl 
+                hover:shadow-lg hover:shadow-blue-500/50 active:scale-[0.98] transition-all duration-200
+                disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
             >
               {loading ? (
                 <span className="flex items-center justify-center">
@@ -158,7 +192,7 @@ export default function Register() {
                 Already have an account?{" "}
                 <a 
                   href="/login" 
-                  className="font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+                  className="font-semibold text-[#01275a] hover:text-[#0466c8] transition-colors"
                 >
                   Sign in
                 </a>
@@ -168,13 +202,35 @@ export default function Register() {
             {/* Terms */}
             <p className="mt-6 text-xs text-gray-500 text-center leading-relaxed">
               By creating an account, you agree to our{" "}
-              <a href="/terms" className="text-blue-600 hover:underline">Terms of Service</a>
+              <a href="/terms" className="text-[#01275a] hover:underline">Terms</a>
               {" "}and{" "}
-              <a href="/privacy" className="text-blue-600 hover:underline">Privacy Policy</a>
+              <a href="/privacy" className="text-[#01275a] hover:underline">Privacy Policy</a>
             </p>
-          </form>
+          </div>
         </div>
       </div>
+
+      <style>{`
+        @keyframes gradient {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+        @keyframes gradient-slow {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+        .animate-gradient {
+          background-size: 200% 200%;
+          animation: gradient 3s ease infinite;
+        }
+        .animate-gradient-slow {
+          background-size: 200% 200%;
+          animation: gradient-slow 5s ease infinite;
+        }
+        .delay-1000 {
+          animation-delay: 1s;
+        }
+      `}</style>
     </div>
   );
 }
