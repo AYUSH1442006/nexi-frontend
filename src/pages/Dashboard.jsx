@@ -2,24 +2,24 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { taskAPI, bidAPI, userAPI } from "../services/api";
 
+// ✅ ADD THIS - Get API base URL from environment
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+
 export default function Dashboard() {
   const [myTasks, setMyTasks] = useState([]);
   const [myBids, setMyBids] = useState([]);
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [paymentLoading, setPaymentLoading] = useState(null); // Track which bid is being paid
+  const [paymentLoading, setPaymentLoading] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchDashboardData();
-    // Load Razorpay script
     loadRazorpayScript();
   }, []);
 
-  // Load Razorpay script dynamically
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
-      // Check if script is already loaded
       if (window.Razorpay) {
         resolve(true);
         return;
@@ -37,7 +37,6 @@ export default function Dashboard() {
     try {
       setLoading(true);
       
-      // Fetch tasks
       let tasksData = [];
       try {
         tasksData = await taskAPI.getMyTasks();
@@ -46,7 +45,6 @@ export default function Dashboard() {
         console.error("❌ Failed to load tasks:", err);
       }
 
-      // Fetch bids
       let bidsData = [];
       try {
         bidsData = await bidAPI.getMyBids();
@@ -55,7 +53,6 @@ export default function Dashboard() {
         console.error("❌ Failed to load bids:", err);
       }
 
-      // Fetch profile
       let profileData = null;
       try {
         profileData = await userAPI.getProfile();
@@ -80,8 +77,8 @@ export default function Dashboard() {
     try {
       const token = localStorage.getItem("token");
       
-      // Step 1: Create Razorpay order
-      const orderRes = await fetch("http://localhost:8080/api/payment/create-order", {
+      // ✅ FIXED: Use API_BASE_URL instead of hardcoded localhost
+      const orderRes = await fetch(`${API_BASE_URL}/api/payment/create-order`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -101,20 +98,19 @@ export default function Dashboard() {
       const orderData = await orderRes.json();
       console.log("✅ Razorpay order created:", orderData);
 
-      // Step 2: Configure Razorpay options
       const options = {
-        key: "rzp_test_Rs8dO4g4KefKPC", // 🔥 REPLACE WITH YOUR RAZORPAY KEY ID
+        key: "rzp_test_Rs8dO4g4KefKPC",
         amount: orderData.amount,
         currency: orderData.currency,
-        name: "AirTasker",
+        name: "NexiTasker",
         description: `Payment for: ${bid.taskTitle}`,
         order_id: orderData.orderId,
         handler: async function (response) {
           console.log("✅ Payment successful:", response);
           
           try {
-            // Step 3: Verify payment on backend
-            const verifyRes = await fetch("http://localhost:8080/api/payment/verify", {
+            // ✅ FIXED: Use API_BASE_URL instead of hardcoded localhost
+            const verifyRes = await fetch(`${API_BASE_URL}/api/payment/verify`, {
               method: "POST",
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -132,7 +128,7 @@ export default function Dashboard() {
 
             if (verifyRes.ok && verifyData.success) {
               alert(`✅ Payment successful!\n💰 Remaining balance: ₹${verifyData.remainingBalance || 'N/A'}`);
-              fetchDashboardData(); // Refresh dashboard
+              fetchDashboardData();
             } else {
               alert("❌ Payment verification failed: " + (verifyData.message || "Unknown error"));
             }
@@ -160,7 +156,6 @@ export default function Dashboard() {
         },
       };
 
-      // Step 4: Open Razorpay checkout
       const rzp = new window.Razorpay(options);
       
       rzp.on('payment.failed', function (response) {
@@ -178,7 +173,6 @@ export default function Dashboard() {
     }
   };
 
-  // Calculate stats from data
   const stats = {
     postedTasks: myTasks.length,
     activeTasks: myTasks.filter(t => t.status === 'OPEN' || t.status === 'ASSIGNED' || t.status === 'IN_PROGRESS').length,
@@ -198,7 +192,6 @@ export default function Dashboard() {
     <div className="p-8 bg-gray-100 min-h-screen">
       <h1 className="text-3xl font-bold mb-6 text-blue-600">Dashboard</h1>
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <div className="bg-white p-4 rounded-lg shadow">
           <h3 className="text-gray-600 text-sm">Posted Tasks</h3>
@@ -220,7 +213,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* My Posted Tasks */}
       <section className="bg-white p-6 rounded-xl shadow-md mb-8">
         <h2 className="text-xl font-semibold mb-4">My Posted Tasks</h2>
 
@@ -251,7 +243,6 @@ export default function Dashboard() {
         )}
       </section>
 
-      {/* Bids I Have Placed */}
       <section className="bg-white p-6 rounded-xl shadow-md">
         <h2 className="text-xl font-semibold mb-4">Bids I Have Placed</h2>
 
@@ -291,7 +282,6 @@ export default function Dashboard() {
                 </div>
 
                 <div className="flex flex-col gap-2 ml-4">
-                  {/* Show "Pay from Wallet" button only for ACCEPTED bids */}
                   {bid.status === "ACCEPTED" && (
                     <button
                       onClick={() => payFromWallet(bid)}
