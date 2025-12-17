@@ -8,7 +8,7 @@ export const useRazorpay = () => {
       
       // Step 2: Configure Razorpay options
       const options = {
-        key: "YOUR_RAZORPAY_KEY_ID", // Replace with your Razorpay Key ID
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,  // Replace with your Razorpay Key ID
         amount: orderData.amount, // Amount in paise
         currency: "INR",
         name: "AirTasker",
