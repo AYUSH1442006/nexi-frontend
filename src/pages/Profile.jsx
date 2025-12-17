@@ -12,7 +12,6 @@ export default function Profile() {
     role: "",
     skills: "",
   });
-  
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,7 +31,7 @@ export default function Profile() {
         skills: data.skills ? data.skills.join(", ") : "",
       });
     } catch (err) {
-      console.error("Failed to load profile", err);
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -40,172 +39,146 @@ export default function Profile() {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
-
     try {
-      const updateData = {
+      await userAPI.updateProfile({
         ...form,
-        skills: form.skills ? form.skills.split(",").map((s) => s.trim()) : [],
-      };
-
-      await userAPI.updateProfile(updateData);
-      alert("Profile updated successfully!");
+        skills: form.skills
+          ? form.skills.split(",").map((s) => s.trim())
+          : [],
+      });
       setEditing(false);
       fetchProfile();
     } catch (err) {
-      alert(err.message || "Failed to update profile");
+      alert("Update failed");
     }
   };
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <p className="text-xl text-gray-600">Loading profile...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse text-xl text-gray-500">
+          Loading profile...
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen">
-      <div className="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-md">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-blue-600">My Profile</h1>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+      <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl p-8 transform transition-all duration-700 animate-[fadeIn_0.8s_ease]">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-blue-600">
+            My Profile
+          </h1>
+
           <button
             onClick={() => setEditing(!editing)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+            className="px-5 py-2 rounded-xl font-medium text-white bg-blue-600
+                       transform transition-all duration-300
+                       hover:scale-105 hover:bg-blue-700
+                       active:scale-95 shadow-md hover:shadow-lg"
           >
             {editing ? "Cancel" : "Edit Profile"}
           </button>
         </div>
 
         {!editing ? (
-          <div className="space-y-4">
+          <div className="space-y-6">
+            {[
+              ["Name", user.name],
+              ["Email", user.email],
+              ["Phone", user.phone || "Not set"],
+              ["Location", user.location || "Not set"],
+              ["Bio", user.bio || "No bio yet"],
+            ].map(([label, value]) => (
+              <div key={label}>
+                <p className="text-gray-500">{label}</p>
+                <p className="text-lg font-semibold">{value}</p>
+              </div>
+            ))}
+
             <div>
-              <p className="text-gray-600">Name</p>
-              <p className="text-xl font-semibold">{user.name}</p>
-            </div>
-            <div>
-              <p className="text-gray-600">Email</p>
-              <p className="text-xl font-semibold">{user.email}</p>
-            </div>
-            <div>
-              <p className="text-gray-600">Phone</p>
-              <p className="text-xl font-semibold">{user.phone || "Not set"}</p>
-            </div>
-            <div>
-              <p className="text-gray-600">Location</p>
-              <p className="text-xl font-semibold">{user.location || "Not set"}</p>
-            </div>
-            <div>
-              <p className="text-gray-600">Bio</p>
-              <p className="text-xl font-semibold">{user.bio || "No bio yet"}</p>
-            </div>
-            <div>
-              <p className="text-gray-600">Role</p>
-              <p className="text-xl font-semibold">
+              <p className="text-gray-500">Role</p>
+              <p className="text-lg font-semibold">
                 {user.role === "POSTER" && "Task Poster"}
                 {user.role === "TASKER" && "Tasker"}
-                {user.role === "BOTH" && "Both (Poster & Tasker)"}
-                {!user.role && "Not set"}
+                {user.role === "BOTH" && "Poster & Tasker"}
               </p>
             </div>
+
             <div>
-              <p className="text-gray-600">Skills</p>
-              <div className="flex gap-2 flex-wrap mt-2">
-                {user.skills && user.skills.length > 0 ? (
-                  user.skills.map((skill, idx) => (
+              <p className="text-gray-500 mb-2">Skills</p>
+              <div className="flex flex-wrap gap-2">
+                {user.skills?.length ? (
+                  user.skills.map((skill, i) => (
                     <span
-                      key={idx}
-                      className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full"
+                      key={i}
+                      className="px-3 py-1 rounded-full bg-blue-100 text-blue-700
+                                 transform transition-all duration-300
+                                 hover:scale-110 hover:bg-blue-200 cursor-pointer"
                     >
                       {skill}
                     </span>
                   ))
                 ) : (
-                  <p className="text-gray-500">No skills added</p>
+                  <p className="text-gray-400">No skills added</p>
                 )}
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-blue-600">{user.tasksPosted}</p>
-                <p className="text-gray-600">Tasks Posted</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-green-600">{user.tasksCompleted}</p>
-                <p className="text-gray-600">Tasks Completed</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-yellow-600">⭐ {user.rating.toFixed(1)}</p>
-                <p className="text-gray-600">Rating ({user.totalReviews} reviews)</p>
-              </div>
+
+            <div className="grid grid-cols-3 gap-4 pt-6 border-t">
+              <Stat label="Tasks Posted" value={user.tasksPosted} color="blue" />
+              <Stat label="Completed" value={user.tasksCompleted} color="green" />
+              <Stat
+                label="Rating"
+                value={`⭐ ${user.rating.toFixed(1)}`}
+                color="yellow"
+              />
             </div>
           </div>
         ) : (
-          <form onSubmit={handleUpdate} className="space-y-4">
+          <form onSubmit={handleUpdate} className="space-y-5">
+            <Input label="Name" value={form.name} onChange={(v) => setForm({ ...form, name: v })} />
+            <Input label="Phone" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} />
+            <Input label="Location" value={form.location} onChange={(v) => setForm({ ...form, location: v })} />
+
             <div>
-              <label className="block text-gray-700 mb-2">Name</label>
-              <input
-                type="text"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 mb-2">Phone</label>
-              <input
-                type="tel"
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 mb-2">Location</label>
-              <input
-                type="text"
-                value={form.location}
-                onChange={(e) => setForm({ ...form, location: e.target.value })}
-                className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 mb-2">Bio</label>
+              <label className="text-gray-600">Bio</label>
               <textarea
                 value={form.bio}
                 onChange={(e) => setForm({ ...form, bio: e.target.value })}
-                className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                 rows="4"
+                className="w-full mt-1 border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 transition"
               />
             </div>
+
             <div>
-              <label className="block text-gray-700 mb-2">Role</label>
+              <label className="text-gray-600">Role</label>
               <select
-                value={form.role || ''}
+                value={form.role || ""}
                 onChange={(e) => setForm({ ...form, role: e.target.value })}
-                className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full mt-1 border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 transition"
               >
-                <option value="">Select Role</option>
+                <option value="">Select role</option>
                 <option value="POSTER">Task Poster</option>
                 <option value="TASKER">Tasker</option>
                 <option value="BOTH">Both</option>
               </select>
             </div>
-            <div>
-              <label className="block text-gray-700 mb-2">
-                Skills (comma separated)
-              </label>
-              <input
-                type="text"
-                value={form.skills}
-                onChange={(e) => setForm({ ...form, skills: e.target.value })}
-                placeholder="e.g., Plumbing, Carpentry, Painting"
-                className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+
+            <Input
+              label="Skills (comma separated)"
+              value={form.skills}
+              onChange={(v) => setForm({ ...form, skills: v })}
+            />
+
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+              className="w-full py-3 rounded-xl text-white font-semibold
+                         bg-gradient-to-r from-blue-600 to-indigo-600
+                         transform transition-all duration-300
+                         hover:scale-105 hover:shadow-xl
+                         active:scale-95"
             >
               Save Changes
             </button>
@@ -216,3 +189,25 @@ export default function Profile() {
   );
 }
 
+function Input({ label, value, onChange }) {
+  return (
+    <div>
+      <label className="text-gray-600">{label}</label>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full mt-1 border rounded-lg p-2
+                   focus:ring-2 focus:ring-blue-500 transition"
+      />
+    </div>
+  );
+}
+
+function Stat({ label, value, color }) {
+  return (
+    <div className="text-center transform transition-all duration-300 hover:scale-105">
+      <p className={`text-2xl font-bold text-${color}-600`}>{value}</p>
+      <p className="text-gray-500">{label}</p>
+    </div>
+  );
+}
