@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { authAPI } from "../services/api";
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -9,6 +11,7 @@ export default function Register() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -20,12 +23,21 @@ export default function Register() {
     setLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      console.log("Registration successful!", form);
-      alert("Account created! (Connect your authAPI.register)");
+      const response = await authAPI.register(form);
+      
+      // Save token and user data
+      localStorage.setItem("token", response.token);
+      localStorage.setItem("userEmail", response.user.email);
+
+      console.log("Registration successful!", response);
+      
+      // Redirect to role selection
+      navigate("/select-role", { 
+        state: { userData: response.user } 
+      });
     } catch (err) {
       setError(err.message || "Registration failed. Please try again.");
+      console.error("Register error:", err);
     } finally {
       setLoading(false);
     }
@@ -98,114 +110,115 @@ export default function Register() {
               <p className="text-gray-600">Join our community today</p>
             </div>
 
-            {error && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl">
-                <div className="flex items-start">
-                  <svg className="w-5 h-5 text-red-500 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                  </svg>
-                  <p className="text-sm text-red-800">{error}</p>
+            <form onSubmit={handleSubmit}>
+              {error && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl">
+                  <div className="flex items-start">
+                    <svg className="w-5 h-5 text-red-500 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                    <p className="text-sm text-red-800">{error}</p>
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-5">
+                {/* Name Input */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                  <input
+                    name="name"
+                    type="text"
+                    placeholder="John Doe"
+                    className={`w-full px-4 py-3.5 bg-gray-50 border-2 rounded-xl transition-all duration-200 outline-none text-gray-900 placeholder-gray-400
+                      ${focusedField === 'name' ? 'border-[#01275a] bg-white shadow-lg' : 'border-transparent hover:bg-gray-100'}`}
+                    value={form.name}
+                    onChange={handleChange}
+                    onFocus={() => setFocusedField('name')}
+                    onBlur={() => setFocusedField(null)}
+                    required
+                  />
+                </div>
+
+                {/* Email Input */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                  <input
+                    name="email"
+                    type="email"
+                    placeholder="john@example.com"
+                    className={`w-full px-4 py-3.5 bg-gray-50 border-2 rounded-xl transition-all duration-200 outline-none text-gray-900 placeholder-gray-400
+                      ${focusedField === 'email' ? 'border-[#01275a] bg-white shadow-lg' : 'border-transparent hover:bg-gray-100'}`}
+                    value={form.email}
+                    onChange={handleChange}
+                    onFocus={() => setFocusedField('email')}
+                    onBlur={() => setFocusedField(null)}
+                    required
+                  />
+                </div>
+
+                {/* Password Input */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                  <input
+                    name="password"
+                    type="password"
+                    placeholder="••••••••"
+                    className={`w-full px-4 py-3.5 bg-gray-50 border-2 rounded-xl transition-all duration-200 outline-none text-gray-900 placeholder-gray-400
+                      ${focusedField === 'password' ? 'border-[#01275a] bg-white shadow-lg' : 'border-transparent hover:bg-gray-100'}`}
+                    value={form.password}
+                    onChange={handleChange}
+                    onFocus={() => setFocusedField('password')}
+                    onBlur={() => setFocusedField(null)}
+                    required
+                    minLength="6"
+                  />
+                  <p className="text-xs text-gray-500 mt-2">Minimum 6 characters</p>
                 </div>
               </div>
-            )}
 
-            <div className="space-y-5">
-              {/* Name Input */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                <input
-                  name="name"
-                  type="text"
-                  placeholder="John Doe"
-                  className={`w-full px-4 py-3.5 bg-gray-50 border-2 rounded-xl transition-all duration-200 outline-none text-gray-900 placeholder-gray-400
-                    ${focusedField === 'name' ? 'border-[#01275a] bg-white shadow-lg' : 'border-transparent hover:bg-gray-100'}`}
-                  value={form.name}
-                  onChange={handleChange}
-                  onFocus={() => setFocusedField('name')}
-                  onBlur={() => setFocusedField(null)}
-                  required
-                />
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full mt-8 py-4 bg-gradient-to-r from-[#01275a] via-[#023e8a] to-[#0466c8] text-white font-semibold rounded-xl 
+                  hover:shadow-lg hover:shadow-blue-500/50 active:scale-[0.98] transition-all duration-200
+                  disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+              >
+                {loading ? (
+                  <span className="flex items-center justify-center">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Creating account...
+                  </span>
+                ) : (
+                  "Create Account"
+                )}
+              </button>
+
+              {/* Footer */}
+              <div className="mt-6 text-center">
+                <p className="text-sm text-gray-600">
+                  Already have an account?{" "}
+                  <a 
+                    href="/login" 
+                    className="font-semibold text-[#01275a] hover:text-[#0466c8] transition-colors"
+                  >
+                    Sign in
+                  </a>
+                </p>
               </div>
 
-              {/* Email Input */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                <input
-                  name="email"
-                  type="email"
-                  placeholder="john@example.com"
-                  className={`w-full px-4 py-3.5 bg-gray-50 border-2 rounded-xl transition-all duration-200 outline-none text-gray-900 placeholder-gray-400
-                    ${focusedField === 'email' ? 'border-[#01275a] bg-white shadow-lg' : 'border-transparent hover:bg-gray-100'}`}
-                  value={form.email}
-                  onChange={handleChange}
-                  onFocus={() => setFocusedField('email')}
-                  onBlur={() => setFocusedField(null)}
-                  required
-                />
-              </div>
-
-              {/* Password Input */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
-                <input
-                  name="password"
-                  type="password"
-                  placeholder="••••••••"
-                  className={`w-full px-4 py-3.5 bg-gray-50 border-2 rounded-xl transition-all duration-200 outline-none text-gray-900 placeholder-gray-400
-                    ${focusedField === 'password' ? 'border-[#01275a] bg-white shadow-lg' : 'border-transparent hover:bg-gray-100'}`}
-                  value={form.password}
-                  onChange={handleChange}
-                  onFocus={() => setFocusedField('password')}
-                  onBlur={() => setFocusedField(null)}
-                  required
-                  minLength="6"
-                />
-                <p className="text-xs text-gray-500 mt-2">Minimum 6 characters</p>
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={loading}
-              className="w-full mt-8 py-4 bg-gradient-to-r from-[#01275a] via-[#023e8a] to-[#0466c8] text-white font-semibold rounded-xl 
-                hover:shadow-lg hover:shadow-blue-500/50 active:scale-[0.98] transition-all duration-200
-                disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
-            >
-              {loading ? (
-                <span className="flex items-center justify-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Creating account...
-                </span>
-              ) : (
-                "Create Account"
-              )}
-            </button>
-
-            {/* Footer */}
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
-                Already have an account?{" "}
-                <a 
-                  href="/login" 
-                  className="font-semibold text-[#01275a] hover:text-[#0466c8] transition-colors"
-                >
-                  Sign in
-                </a>
+              {/* Terms */}
+              <p className="mt-6 text-xs text-gray-500 text-center leading-relaxed">
+                By creating an account, you agree to our{" "}
+                <a href="/terms" className="text-[#01275a] hover:underline">Terms</a>
+                {" "}and{" "}
+                <a href="/privacy" className="text-[#01275a] hover:underline">Privacy Policy</a>
               </p>
-            </div>
-
-            {/* Terms */}
-            <p className="mt-6 text-xs text-gray-500 text-center leading-relaxed">
-              By creating an account, you agree to our{" "}
-              <a href="/terms" className="text-[#01275a] hover:underline">Terms</a>
-              {" "}and{" "}
-              <a href="/privacy" className="text-[#01275a] hover:underline">Privacy Policy</a>
-            </p>
+            </form>
           </div>
         </div>
       </div>
