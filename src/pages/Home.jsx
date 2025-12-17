@@ -96,7 +96,7 @@ export default function Home() {
             </div>
             
             <p className="text-2xl md:text-3xl mb-12 opacity-95 font-light tracking-wide animate-fade-in-up animation-delay-200">
-              Post any task. Pick the best person. Get it done.
+              
             </p>
             
             {/* CTA Buttons with Glow Effect */}
