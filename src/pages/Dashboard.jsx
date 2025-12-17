@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { taskAPI, bidAPI, userAPI } from "../services/api";
 
 // ✅ ADD THIS - Get API base URL from environment
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+const API_BASE_URL = "https://nexi-backend.onrender.com";
 
 export default function Dashboard() {
   const [myTasks, setMyTasks] = useState([]);
