@@ -130,8 +130,8 @@ export default function Home() {
                     </svg>
                   </div>
                 </div>
-                <p className="text-3xl font-black mb-1">1M+</p>
-                <p className="text-sm opacity-90 font-medium">Happy Customers</p>
+                <p className="text-3xl font-black mb-1"></p>
+                <p className="text-sm opacity-90 font-medium"></p>
               </div>
               
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all transform hover:scale-105 hover:shadow-2xl">
@@ -142,8 +142,8 @@ export default function Home() {
                     </svg>
                   </div>
                 </div>
-                <p className="text-3xl font-black mb-1">2.5M+</p>
-                <p className="text-sm opacity-90 font-medium">Tasks Completed</p>
+                <p className="text-3xl font-black mb-1"></p>
+                <p className="text-sm opacity-90 font-medium"></p>
               </div>
               
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all transform hover:scale-105 hover:shadow-2xl">
@@ -154,8 +154,8 @@ export default function Home() {
                     </svg>
                   </div>
                 </div>
-                <p className="text-3xl font-black mb-1">4M+</p>
-                <p className="text-sm opacity-90 font-medium">5-Star Reviews</p>
+                <p className="text-3xl font-black mb-1"></p>
+                <p className="text-sm opacity-90 font-medium"></p>
               </div>
             </div>
           </div>

@@ -31,7 +31,7 @@ export default function Profile() {
         skills: data.skills ? data.skills.join(", ") : "",
       });
     } catch (err) {
-      console.error(err);
+      console.error("Failed to load profile", err);
     } finally {
       setLoading(false);
     }
@@ -40,151 +40,188 @@ export default function Profile() {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      await userAPI.updateProfile({
+      const updateData = {
         ...form,
         skills: form.skills
           ? form.skills.split(",").map((s) => s.trim())
           : [],
-      });
+      };
+      await userAPI.updateProfile(updateData);
+      alert("Profile updated successfully!");
       setEditing(false);
       fetchProfile();
     } catch (err) {
-      alert("Update failed");
+      alert(err.message || "Failed to update profile");
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-xl text-gray-500">
-          Loading profile...
-        </div>
+      <div className="flex justify-center items-center min-h-screen">
+        <p className="text-xl text-gray-300">Loading profile...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-      <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl p-8 transform transition-all duration-700 animate-[fadeIn_0.8s_ease]">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-blue-600">
-            My Profile
-          </h1>
+    <div
+      className="min-h-screen bg-cover bg-center bg-no-repeat relative"
+      style={{
+        backgroundImage:
+          "url('https://chatgpt.com/backend-api/estuary/content?id=file_000000000ddc720884d7550fb6362ff3&ts=490542&p=fs&cid=1&sig=359bf4032726550995b7b43bf3f81d83f32ab8869a5689db02f9067a314d75ea&v=0')",
+      }}
+    >
+      {/* Dark Overlay */}
+      <div className="absolute inset-0 bg-black/60"></div>
 
-          <button
-            onClick={() => setEditing(!editing)}
-            className="px-5 py-2 rounded-xl font-medium text-white bg-blue-600
-                       transform transition-all duration-300
-                       hover:scale-105 hover:bg-blue-700
-                       active:scale-95 shadow-md hover:shadow-lg"
-          >
-            {editing ? "Cancel" : "Edit Profile"}
-          </button>
-        </div>
-
-        {!editing ? (
-          <div className="space-y-6">
-            {[
-              ["Name", user.name],
-              ["Email", user.email],
-              ["Phone", user.phone || "Not set"],
-              ["Location", user.location || "Not set"],
-              ["Bio", user.bio || "No bio yet"],
-            ].map(([label, value]) => (
-              <div key={label}>
-                <p className="text-gray-500">{label}</p>
-                <p className="text-lg font-semibold">{value}</p>
-              </div>
-            ))}
-
-            <div>
-              <p className="text-gray-500">Role</p>
-              <p className="text-lg font-semibold">
-                {user.role === "POSTER" && "Task Poster"}
-                {user.role === "TASKER" && "Tasker"}
-                {user.role === "BOTH" && "Poster & Tasker"}
-              </p>
-            </div>
-
-            <div>
-              <p className="text-gray-500 mb-2">Skills</p>
-              <div className="flex flex-wrap gap-2">
-                {user.skills?.length ? (
-                  user.skills.map((skill, i) => (
-                    <span
-                      key={i}
-                      className="px-3 py-1 rounded-full bg-blue-100 text-blue-700
-                                 transform transition-all duration-300
-                                 hover:scale-110 hover:bg-blue-200 cursor-pointer"
-                    >
-                      {skill}
-                    </span>
-                  ))
-                ) : (
-                  <p className="text-gray-400">No skills added</p>
-                )}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-4 pt-6 border-t">
-              <Stat label="Tasks Posted" value={user.tasksPosted} color="blue" />
-              <Stat label="Completed" value={user.tasksCompleted} color="green" />
-              <Stat
-                label="Rating"
-                value={`⭐ ${user.rating.toFixed(1)}`}
-                color="yellow"
-              />
-            </div>
-          </div>
-        ) : (
-          <form onSubmit={handleUpdate} className="space-y-5">
-            <Input label="Name" value={form.name} onChange={(v) => setForm({ ...form, name: v })} />
-            <Input label="Phone" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} />
-            <Input label="Location" value={form.location} onChange={(v) => setForm({ ...form, location: v })} />
-
-            <div>
-              <label className="text-gray-600">Bio</label>
-              <textarea
-                value={form.bio}
-                onChange={(e) => setForm({ ...form, bio: e.target.value })}
-                rows="4"
-                className="w-full mt-1 border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 transition"
-              />
-            </div>
-
-            <div>
-              <label className="text-gray-600">Role</label>
-              <select
-                value={form.role || ""}
-                onChange={(e) => setForm({ ...form, role: e.target.value })}
-                className="w-full mt-1 border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 transition"
-              >
-                <option value="">Select role</option>
-                <option value="POSTER">Task Poster</option>
-                <option value="TASKER">Tasker</option>
-                <option value="BOTH">Both</option>
-              </select>
-            </div>
-
-            <Input
-              label="Skills (comma separated)"
-              value={form.skills}
-              onChange={(v) => setForm({ ...form, skills: v })}
-            />
-
+      {/* Content */}
+      <div className="relative z-10 p-8 min-h-screen">
+        <div className="max-w-2xl mx-auto bg-white/95 p-8 rounded-xl shadow-2xl">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-3xl font-bold text-blue-600">My Profile</h1>
             <button
-              type="submit"
-              className="w-full py-3 rounded-xl text-white font-semibold
-                         bg-gradient-to-r from-blue-600 to-indigo-600
-                         transform transition-all duration-300
-                         hover:scale-105 hover:shadow-xl
+              onClick={() => setEditing(!editing)}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg
+                         transition-all duration-300
+                         hover:bg-orange-500 hover:scale-105
                          active:scale-95"
             >
-              Save Changes
+              {editing ? "Cancel" : "Edit Profile"}
             </button>
-          </form>
-        )}
+          </div>
+
+          {!editing ? (
+            <div className="space-y-4">
+              <ProfileItem label="Name" value={user.name} />
+              <ProfileItem label="Email" value={user.email} />
+              <ProfileItem label="Phone" value={user.phone || "Not set"} />
+              <ProfileItem label="Location" value={user.location || "Not set"} />
+              <ProfileItem label="Bio" value={user.bio || "No bio yet"} />
+
+              <div>
+                <p className="text-gray-600">Role</p>
+                <p className="text-xl font-semibold">
+                  {user.role === "POSTER" && "Task Poster"}
+                  {user.role === "TASKER" && "Tasker"}
+                  {user.role === "BOTH" && "Both (Poster & Tasker)"}
+                  {!user.role && "Not set"}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-gray-600">Skills</p>
+                <div className="flex gap-2 flex-wrap mt-2">
+                  {user.skills && user.skills.length > 0 ? (
+                    user.skills.map((skill, idx) => (
+                      <span
+                        key={idx}
+                        className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full
+                                   transition-transform duration-300
+                                   hover:scale-110"
+                      >
+                        {skill}
+                      </span>
+                    ))
+                  ) : (
+                    <p className="text-gray-500">No skills added</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t">
+                <Stat label="Tasks Posted" value={user.tasksPosted} color="blue" />
+                <Stat
+                  label="Tasks Completed"
+                  value={user.tasksCompleted}
+                  color="green"
+                />
+                <Stat
+                  label="Rating"
+                  value={`⭐ ${user.rating.toFixed(1)}`}
+                  color="yellow"
+                />
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={handleUpdate} className="space-y-4">
+              <Input
+                label="Name"
+                value={form.name}
+                onChange={(v) => setForm({ ...form, name: v })}
+              />
+              <Input
+                label="Phone"
+                value={form.phone}
+                onChange={(v) => setForm({ ...form, phone: v })}
+              />
+              <Input
+                label="Location"
+                value={form.location}
+                onChange={(v) => setForm({ ...form, location: v })}
+              />
+
+              <div>
+                <label className="block text-gray-700 mb-2">Bio</label>
+                <textarea
+                  value={form.bio}
+                  onChange={(e) =>
+                    setForm({ ...form, bio: e.target.value })
+                  }
+                  rows="4"
+                  className="w-full border p-2 rounded
+                             focus:outline-none focus:ring-2
+                             focus:ring-orange-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 mb-2">Role</label>
+                <select
+                  value={form.role || ""}
+                  onChange={(e) =>
+                    setForm({ ...form, role: e.target.value })
+                  }
+                  className="w-full border p-2 rounded
+                             focus:outline-none focus:ring-2
+                             focus:ring-orange-500"
+                >
+                  <option value="">Select Role</option>
+                  <option value="POSTER">Task Poster</option>
+                  <option value="TASKER">Tasker</option>
+                  <option value="BOTH">Both</option>
+                </select>
+              </div>
+
+              <Input
+                label="Skills (comma separated)"
+                value={form.skills}
+                onChange={(v) => setForm({ ...form, skills: v })}
+              />
+
+              <button
+                type="submit"
+                className="w-full bg-blue-600 text-white py-2 rounded-lg
+                           transition-all duration-300
+                           hover:bg-orange-500 hover:scale-105
+                           active:scale-95"
+              >
+                Save Changes
+              </button>
+            </form>
+          )}
+        </div>
       </div>
+    </div>
+  );
+}
+
+/* Helper Components */
+
+function ProfileItem({ label, value }) {
+  return (
+    <div>
+      <p className="text-gray-600">{label}</p>
+      <p className="text-xl font-semibold">{value}</p>
     </div>
   );
 }
@@ -192,12 +229,13 @@ export default function Profile() {
 function Input({ label, value, onChange }) {
   return (
     <div>
-      <label className="text-gray-600">{label}</label>
+      <label className="block text-gray-700 mb-2">{label}</label>
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full mt-1 border rounded-lg p-2
-                   focus:ring-2 focus:ring-blue-500 transition"
+        className="w-full border p-2 rounded
+                   focus:outline-none focus:ring-2
+                   focus:ring-orange-500"
       />
     </div>
   );
@@ -205,9 +243,9 @@ function Input({ label, value, onChange }) {
 
 function Stat({ label, value, color }) {
   return (
-    <div className="text-center transform transition-all duration-300 hover:scale-105">
+    <div className="text-center">
       <p className={`text-2xl font-bold text-${color}-600`}>{value}</p>
-      <p className="text-gray-500">{label}</p>
+      <p className="text-gray-600">{label}</p>
     </div>
   );
 }
