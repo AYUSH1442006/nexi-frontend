@@ -25,15 +25,26 @@ export default function Register() {
     try {
       const response = await authAPI.register(form);
       
-      // Save token and user data
-      localStorage.setItem("token", response.token);
-      localStorage.setItem("userEmail", response.user.email);
+      console.log("Full API Response:", response);
+      
+      // Handle different response formats
+      const token = response.token || response.data?.token;
+      const user = response.user || response.data?.user || response;
+      const email = user.email || form.email;
+      
+      if (token) {
+        localStorage.setItem("token", token);
+      }
+      
+      if (email) {
+        localStorage.setItem("userEmail", email);
+      }
 
-      console.log("Registration successful!", response);
+      console.log("Registration successful! Token:", token, "User:", user);
       
       // Redirect to role selection
       navigate("/select-role", { 
-        state: { userData: response.user } 
+        state: { userData: user } 
       });
     } catch (err) {
       setError(err.message || "Registration failed. Please try again.");
